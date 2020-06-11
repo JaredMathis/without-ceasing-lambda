@@ -2,10 +2,10 @@
 const u = require("wlj-utilities");
 const lib = require("without-ceasing-library");
 const aws = require('aws-sdk');
+const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 const { v4: uuidv4 } = require('uuid');
 const getPrayerRequests = require('./getPrayerRequests');
 
-const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
 module.exports = wcRequestPrayer;
 
@@ -21,13 +21,12 @@ async function wcRequestPrayer(event, context, callback) {
                 request,
                 ['userId', 'petitionId', 'nameId']
             )) {
-                return 'Already requested!'
+                return { result: r, message: 'Already requested!' };
             }
         }
 
-        await requestPrayer(x, request);
-
-        return "Requested!";
+        let result = await requestPrayer(x, request);
+        return { result, message: 'Requested!' };
     }, callback);
 }
 
@@ -43,15 +42,17 @@ async function requestPrayer(x, request) {
     let eventId = uuidv4();
     let key = `${date}/${time}/${eventId}`;
     u.merge(x, { key });
+    let result = {
+        key,
+        request,
+    };
     const params = {
         Bucket: "without-ceasing-data",
         Key: key,
-        Body: JSON.stringify({
-            request,
-        }),
+        Body: JSON.stringify(result),
     };
     u.merge(x, { params });
 
     const response = await s3.upload(params).promise();
-    return { key };
+    return result;
 };

@@ -9,7 +9,7 @@ u.scope(__filename, x => {
     let log = false;
     let apigateway = require("./../../" + u.getAwsApiGatewayFileName());
     let parsed = u.awsLambdaApiCall(apigateway, wcPrayerRequests.name, {
-    });
+    }, x);
     if (log) console.log(parsed);
     u.assert(() => parsed.success === true);
     u.assert(() => u.isArray(parsed.result));
