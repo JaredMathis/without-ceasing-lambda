@@ -6,9 +6,9 @@ const { v4: uuidv4 } = require('uuid');
 
 const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
-module.exports = wcPrayers;
+module.exports = wcPrayerRequests;
 
-async function wcPrayers(event, context, callback) {
+async function wcPrayerRequests(event, context, callback) {
     await u.awsScope(async (x) => {
         return await getPrayers(x);
     }, callback);

@@ -2,13 +2,13 @@
 const u = require("wlj-utilities");
 const lib = require('without-ceasing-library');
 const { v4: uuidv4 } = require('uuid');
-const wcPrayers = require("../../library/wcPrayerRequests.js");
+const wcPrayerRequests = require("../../library/wcPrayerRequests.js");
 const index = require("../../index.js");
 
 u.scope(__filename, x => {
     let log = false;
     let apigateway = require("./../../" + u.getAwsApiGatewayFileName());
-    let parsed = u.awsLambdaApiCall(apigateway, wcPrayers.name, {
+    let parsed = u.awsLambdaApiCall(apigateway, wcPrayerRequests.name, {
     });
     if (log) console.log(parsed);
     u.assert(() => parsed.success === true);
