@@ -1,5 +1,6 @@
 
 const u = require("wlj-utilities");
+const lib = require("without-ceasing-library");
 const aws = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
 
@@ -9,29 +10,36 @@ module.exports = wcRequestPrayer;
 
 async function wcRequestPrayer(event, context, callback) {
     await u.awsScope(async (x) => {
-        u.assert(() => u.isGuid(event.userId));        
 
-        let request = {
-            userId: event.userId,
-            petition: event.petition,
-        }
+        let request = lib.toRequest(event);
 
-        await saveData(x, request);
+        await requestPrayer(x, request);
 
         return "Requested!";
     }, callback);
 }
 
-async function saveEvent(x, event) {
-    let eventId = v4();
-    u.merge(event, {eventId});
+async function requestPrayer(x, request) {
+    let now = new Date();
+
+    let month = u.padNumber(now.getMonth() + 1, 2);
+    let day = u.padNumber(now.getDate(), 2);
+    let date = `${now.getFullYear()}/${month}/${day}`;
+
+    let time = `${now.getHours()}/${now.getMinutes()}`;
+    
+    let eventId = uuidv4();
+    let key = `${date}/${time}/${eventId}`;
+    u.merge(x, {key});
     const params = {
         Bucket:  "without-ceasing-data",
-        Key: eventId,
-        Body: JSON.stringify(event),
+        Key: key,
+        Body: JSON.stringify({
+            request,
+        }),
     };
     u.merge(x, {params});
 
     const response = await s3.upload(params).promise();
-    return response;
+    return { key };
 };

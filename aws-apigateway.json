@@ -4,5 +4,8 @@
   },
   "wcRequestPrayer": {
     "default": "db760v4ng2"
+  },
+  "wcPrayers": {
+    "default": "ag1dp61b2m"
   }
 }
