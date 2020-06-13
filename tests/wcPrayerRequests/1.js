@@ -14,7 +14,8 @@ u.scope(__filename, x => {
     u.assert(() => parsed.success === true);
     u.assert(() => u.isArray(parsed.result));
     u.assert(() => parsed.result.length >= 1);
-    let p = parsed.result[0].request;
+    u.merge(x, () => parsed.result[0]);
+    let p = parsed.result[0].data.request;
     u.merge(x, {p});
     u.assert(() => u.isGuid(p.userId));
     u.assert(() => 0 <= p.nameId);

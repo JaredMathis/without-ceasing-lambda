@@ -8,9 +8,9 @@
   },
   "author": "",
   "dependencies": {
-    "aws-sdk": "^2.695.0",
+    "aws-sdk": "^2.696.0",
     "uuid": "^8.1.0",
-    "without-ceasing-library": "^1.0.15",
+    "without-ceasing-library": "^1.0.16",
     "wlj-utilities": "^1.0.78"
   }
 }

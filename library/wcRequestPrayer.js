@@ -5,7 +5,7 @@ const aws = require('aws-sdk');
 const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 const { v4: uuidv4 } = require('uuid');
 const getPrayerRequests = require('./getPrayerRequests');
-
+const merge = require("wlj-utilities/library/merge");
 
 module.exports = wcRequestPrayer;
 
@@ -16,8 +16,9 @@ async function wcRequestPrayer(event, context, callback) {
 
         let requests = await getPrayerRequests(x);
         for (let r of requests) {
+            merge(x,{r});
             if (u.propertiesAreEqual(
-                r.request,
+                r.data.request,
                 request,
                 ['userId', 'petitionId', 'nameId']
             )) {
@@ -44,7 +45,7 @@ async function requestPrayer(x, request) {
     u.merge(x, { key });
     let result = {
         key,
-        request,
+        data: { request },
     };
     const params = {
         Bucket: "without-ceasing-data",

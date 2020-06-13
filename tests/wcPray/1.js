@@ -3,9 +3,13 @@ const u = require("wlj-utilities");
 
 const wcRequestPrayer = require("../../library/wcRequestPrayer.js");
 const wcPray = require("../../library/wcPray.js");
+const wcPrayerRequest = require("../../library/wcPrayerRequest.js");
 const index = require("../../index.js");
+const getCountries = require("without-ceasing-library/library/getCountries");
 
 u.scope(__filename, x => {
+    let log = false;
+
     let apigateway = require("./../../" + u.getAwsApiGatewayFileName());
     let requestPrayer = u.awsLambdaApiCall(apigateway, wcRequestPrayer.name, { 
         userId: "b3f40c3d-23ee-4663-bd7a-17079fd67b4f",
@@ -16,10 +20,35 @@ u.scope(__filename, x => {
 
     let key = requestPrayer.result.result.key;
 
-    let pray = u.awsLambdaApiCall(apigateway, wcPray.name, { 
+    let countries = getCountries();
+
+    let before = u.awsLambdaApiCall(apigateway, wcPrayerRequest.name, { 
         key,
     }, x);
+    u.assert(() => before.success === true);
+    let beforeLength = before.result.data.prayers.length;
+
+    let countryId = 1;
+    let country = countries[countryId];
+    let pray = u.awsLambdaApiCall(apigateway, wcPray.name, { 
+        key,
+        country,
+    }, x);
     u.assert(() => pray.success === true);
-    console.log(__filename);
-    console.log(pray.result);
+
+    let after = u.awsLambdaApiCall(apigateway, wcPrayerRequest.name, { 
+        key,
+    }, x);
+
+    if (log) {
+        console.log(__filename);
+        console.log(JSON.stringify({after}, null, 2));
+    }
+
+    u.assert(() => after.success === true);
+    let afterPrayers = after.result.data.prayers;
+    let afterLength = afterPrayers.length;
+
+    u.assert(() => afterLength === beforeLength + 1);
+    u.assert(() => afterPrayers[afterPrayers.length - 1].countryId === countryId)
 });
